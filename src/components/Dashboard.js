@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom";
 import API from "../api";
 
 import Apps from "./Apps";
@@ -12,6 +12,8 @@ import WatchList from "./WatchList";
 import { GeneralContextProvider } from "./GeneralContext";
 
 const Dashboard = () => {
+  const location = useLocation();
+
   const [holdings, setHoldings] = useState([]);
   const [positions, setPositions] = useState([]);
   const [orders, setOrders] = useState([]);
@@ -27,27 +29,37 @@ const Dashboard = () => {
       setHoldings(h.data || []);
       setPositions(p.data || []);
       setOrders(o.data || []);
-    } catch (error) {
-      console.error("Dashboard refresh failed", error);
+    } catch (err) {
+      console.error("Dashboard refresh failed", err);
     }
   }, []);
 
   useEffect(() => {
+    // 1️⃣ Read token from URL
+    const params = new URLSearchParams(location.search);
+    const tokenFromUrl = params.get("token");
+
+    if (tokenFromUrl) {
+      localStorage.setItem("token", tokenFromUrl);
+      window.history.replaceState({}, document.title, "/");
+    }
+
+    // 2️⃣ Check token
     const token = localStorage.getItem("token");
 
-    // 🔴 No token → redirect to frontend login
     if (!token) {
       window.location.href = "https://zerodhafnd-ui.vercel.app";
       return;
     }
 
+    // 3️⃣ Load data
     refreshData();
-  }, [refreshData]);
+  }, [location.search, refreshData]);
 
   return (
     <GeneralContextProvider>
       <div className="dashboard-container">
-        {/* LEFT SIDE – BUY / SELL */}
+        {/* LEFT SIDE */}
         <WatchList onTradeSuccess={refreshData} />
 
         {/* RIGHT SIDE */}
@@ -84,7 +96,6 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
-
 
 
 
