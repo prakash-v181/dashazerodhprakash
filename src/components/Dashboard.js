@@ -1,5 +1,5 @@
-import React, { useEffect, useCallback } from "react";
-import { Routes, Route } from "react-router-dom";
+import React, { useEffect, useState, useCallback } from "react";
+import { Routes, Route, useNavigate } from "react-router-dom";
 import API from "../api";
 
 import Apps from "./Apps";
@@ -12,33 +12,70 @@ import WatchList from "./WatchList";
 import { GeneralContextProvider } from "./GeneralContext";
 
 const Dashboard = () => {
+  const navigate = useNavigate();
+
+  const [holdings, setHoldings] = useState([]);
+  const [positions, setPositions] = useState([]);
+  const [orders, setOrders] = useState([]);
+
   const refreshData = useCallback(async () => {
     try {
-      await Promise.all([
+      const [h, p, o] = await Promise.all([
         API.get("/api/allHoldings"),
         API.get("/api/allPositions"),
         API.get("/api/allOrders")
       ]);
+
+      setHoldings(h.data || []);
+      setPositions(p.data || []);
+      setOrders(o.data || []);
     } catch (error) {
-      console.error("Dashboard refresh failed");
+      console.error("Dashboard refresh failed", error);
     }
   }, []);
 
   useEffect(() => {
+    const token = localStorage.getItem("token");
+
+    // 🔴 No token → redirect to frontend login
+    if (!token) {
+      window.location.href = "https://zerodhafnd-ui.vercel.app";
+      return;
+    }
+
     refreshData();
   }, [refreshData]);
 
   return (
     <GeneralContextProvider>
       <div className="dashboard-container">
+        {/* LEFT SIDE – BUY / SELL */}
         <WatchList onTradeSuccess={refreshData} />
 
+        {/* RIGHT SIDE */}
         <div className="content">
           <Routes>
-            <Route index element={<Summary />} />
-            <Route path="holdings" element={<Holdings />} />
-            <Route path="positions" element={<Positions />} />
-            <Route path="orders" element={<Orders />} />
+            <Route
+              index
+              element={
+                <Summary
+                  holdings={holdings}
+                  positions={positions}
+                />
+              }
+            />
+            <Route
+              path="holdings"
+              element={<Holdings data={holdings} />}
+            />
+            <Route
+              path="positions"
+              element={<Positions data={positions} />}
+            />
+            <Route
+              path="orders"
+              element={<Orders data={orders} />}
+            />
             <Route path="funds" element={<Funds />} />
             <Route path="apps" element={<Apps />} />
           </Routes>
@@ -49,7 +86,6 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
-
 
 
 
