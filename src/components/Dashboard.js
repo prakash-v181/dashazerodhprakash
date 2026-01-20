@@ -39,7 +39,7 @@ const Dashboard = () => {
 
     // 🔴 No token → redirect to frontend login
     if (!token) {
-      window.location.href = "https://zerodhafnd-ui.vercel.app";
+      window.location.href = "https://dashazerodhprakash.vercel.app";
       return;
     }
 
