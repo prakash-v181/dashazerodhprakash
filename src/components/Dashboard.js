@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { Routes, Route, useNavigate } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import API from "../api";
 
 import Apps from "./Apps";
@@ -12,8 +12,6 @@ import WatchList from "./WatchList";
 import { GeneralContextProvider } from "./GeneralContext";
 
 const Dashboard = () => {
-  const navigate = useNavigate();
-
   const [holdings, setHoldings] = useState([]);
   const [positions, setPositions] = useState([]);
   const [orders, setOrders] = useState([]);
@@ -39,7 +37,7 @@ const Dashboard = () => {
 
     // 🔴 No token → redirect to frontend login
     if (!token) {
-      window.location.href = "https://dashazerodhprakash.vercel.app";
+      window.location.href = "https://zerodhafnd-ui.vercel.app";
       return;
     }
 
@@ -86,7 +84,6 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
-
 
 
 
