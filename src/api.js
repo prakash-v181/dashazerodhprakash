@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: process.env.REACT_APP_API_URL,
+  baseURL: process.env.REACT_APP_API_URL, // Render backend
   withCredentials: true,
   timeout: 10000
 });
@@ -16,10 +16,7 @@ API.interceptors.request.use(
 
     return req;
   },
-  (error) => {
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
 export default API;
-
